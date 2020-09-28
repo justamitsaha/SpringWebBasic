@@ -4,9 +4,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +25,8 @@ public class GreetingController {
 	private static final String template = "Hello, %s!";
 	private final AtomicLong counter = new AtomicLong();
 	
+	@Autowired
+	JdbcTemplate jdbc;
 	/* Basis Get */
 	@GetMapping("/getGreetings")
 	public Greeting greetingGet(@RequestParam(value = "name", defaultValue = "World") String name) {
@@ -56,6 +60,13 @@ public class GreetingController {
 	public ResponseEntity<Greeting> validateRequst(@Valid @RequestBody EmployeeRequest empReq) {
 		System.out.println("<----- Inside validate request----->");
 		Greeting gt = new Greeting(6, "HELLO LENDU");
+		try {
+			jdbc.execute("INSERT INTO MOVIE_MASTER (MOVIE_NAME) VALUES('SHOLAY')");
+		} catch (Exception e) {
+			//System.err.println(e);
+			System.out.println("GreetingController.validateRequst()---> "+e);
+		}
+		
 		HttpHeaders responseHeaders = new HttpHeaders();
 		return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(gt);
 	}
